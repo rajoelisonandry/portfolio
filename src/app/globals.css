@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/* Class-based dark mode, toggled on <html> by `src/lib/theme.ts`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Short viewports (e.g. 13" laptops): used to compact the sticky hero column. */
+@custom-variant short (@media (max-height: 860px));
+
+/* ---------------------------------------------------------------------------
+ * Design tokens
+ * Semantic colors are defined once per theme and exposed to Tailwind below,
+ * so components only use names like `text-heading` or `bg-accent-soft`.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --bg: #fafaf9;
+  --heading: #111827;
+  --body: #4b5563;
+  --muted: #6b7280;
+  --line: #d6d3d1;
+  --accent: #047857;
+  --accent-soft: rgb(16 185 129 / 0.1);
+  --card: #ffffff;
+  --spotlight: rgb(16 185 129 / 0.07);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0e1412;
+  --heading: #e6ebe8;
+  --body: #a0aaa5;
+  --muted: #6f7a75;
+  --line: #24302c;
+  --accent: #6ee7b7;
+  --accent-soft: rgb(52 211 153 / 0.1);
+  --card: rgb(30 44 39 / 0.55);
+  --spotlight: rgb(16 185 129 / 0.08);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-heading: var(--heading);
+  --color-body: var(--body);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-card: var(--card);
+
+  --animate-letter: letter-in 0.5s ease-out both;
+  --animate-caret: caret-blink 1s step-end infinite;
+  --animate-fade-in: fade-in 0.6s ease-out both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes letter-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.4em);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Base styles
+ * ------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--body);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--bg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
