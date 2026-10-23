@@ -23,6 +23,8 @@ export interface Profile {
   readonly location: string;
   readonly email: string;
   readonly phones: readonly string[];
+  /** Number reachable on WhatsApp (international format). */
+  readonly whatsapp: string;
   readonly socials: {
     readonly github: string;
     readonly linkedin: string;

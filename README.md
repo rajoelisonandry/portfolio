@@ -10,24 +10,27 @@ Portfolio personnel de développeur FullStack indépendant, construit avec **Nex
 - **Animations** : nom révélé lettre par lettre (CSS pur) et titre en machine à écrire, désactivées si l'utilisateur préfère réduire les animations.
 - **Accessibilité** : lien d'évitement, titres hiérarchisés, `aria-current`, focus visible, menu mobile fermable au clavier.
 - **SEO** : métadonnées Open Graph / Twitter, image de partage générée, `sitemap.xml`, `robots.txt` et données structurées JSON-LD (`Person`).
-- **100 % statique** : la page est pré-rendue au build.
+- **Assistante IA** : un chat (Google Gemini, offre gratuite, réponses en streaming) qui répond uniquement aux questions sur le profil, protégé contre les abus (voir ci-dessous).
+- **Page statique** : la page est pré-rendue au build ; seule l'API de l'assistante s'exécute côté serveur.
 
 ## Stack
 
-| Domaine   | Outils                                          |
-| --------- | ----------------------------------------------- |
-| Framework | Next.js 16, React 19                            |
-| Langage   | TypeScript (strict)                             |
-| Style     | Tailwind CSS v4, design tokens en variables CSS |
-| Qualité   | ESLint, Prettier, Vitest, Testing Library       |
-| CI        | GitHub Actions                                  |
+| Domaine   | Outils                                            |
+| --------- | ------------------------------------------------- |
+| Framework | Next.js 16, React 19                              |
+| Langage   | TypeScript (strict)                               |
+| Style     | Tailwind CSS v4, design tokens en variables CSS   |
+| IA        | Google Gemini via le SDK officiel `@google/genai` |
+| Qualité   | ESLint, Prettier, Vitest, Testing Library         |
+| CI        | GitHub Actions                                    |
 
 ## Architecture
 
 ```
 src/
-├── app/                 # Routes Next.js : page, layout, SEO (sitemap, robots, OG image)
+├── app/                 # Routes Next.js : page, layout, SEO, API de l'assistante (api/chat)
 ├── components/
+│   ├── chat/            # Widget de l'assistante IA
 │   ├── layout/          # Header, Hero, ThemeToggle, Spotlight
 │   ├── sections/        # Sections de la page (À propos, Expérience, Formation, Contact)
 │   └── ui/              # Composants réutilisables et sans logique métier
@@ -45,13 +48,36 @@ Principes suivis :
 - **Server Components par défaut** : seuls les composants interactifs sont des Client Components (`"use client"`).
 - **Design tokens** : les couleurs sémantiques (`text-heading`, `bg-accent-soft`…) sont définies une fois par thème dans `globals.css`.
 
+## Assistante IA
+
+Le modèle est **Google Gemini** (offre gratuite), activé dès que `GEMINI_API_KEY` est défini. L'accès au modèle est isolé derrière l'interface `ChatProvider` (`src/lib/chat/providers`) : les barrières ci-dessous ne dépendent pas du fournisseur.
+
+L'API `src/app/api/chat/route.ts` applique plusieurs barrières, des moins coûteuses aux plus coûteuses :
+
+| Barrière             | Rôle                                                                               |
+| -------------------- | ---------------------------------------------------------------------------------- |
+| Interrupteur         | `CHAT_ENABLED=false` (ou clé absente) désactive l'assistante sans changer le code  |
+| Même origine         | refuse les appels venant d'un autre site                                           |
+| Limite par visiteur  | 15 messages par heure et par IP                                                    |
+| Budget quotidien     | nombre maximal de messages par jour pour tout le site (`CHAT_DAILY_LIMIT`)         |
+| Validation           | messages de 500 caractères maximum, historique limité aux 6 derniers messages      |
+| Instructions système | l'assistante ne répond qu'au sujet du profil, à partir du contenu de `src/content` |
+| Sortie plafonnée     | 800 tokens maximum par réponse, abandon après 25 s sans réponse du modèle          |
+
+Les limites sont centralisées dans `src/lib/chat/limits.ts` et testées (`route.test.ts`, `chat.test.ts`).
+Les instructions système ne sont jamais une garantie absolue : ce sont les limites côté serveur qui plafonnent le coût.
+En complément, l'offre gratuite de Gemini impose ses propres quotas : une fois atteints, l'assistante affiche un message d'indisponibilité avec l'e-mail de contact.
+
+Les compteurs sont gardés en mémoire : sur une plateforme serverless, ils sont propres à chaque instance.
+Pour des limites strictement globales, remplacer `createFixedWindowLimiter` par un stockage partagé (Redis…) derrière la même interface `RateLimiter`.
+
 ## Démarrage
 
 Prérequis : Node.js 22 ou plus.
 
 ```bash
 npm install
-cp .env.example .env.local   # puis renseigner NEXT_PUBLIC_SITE_URL
+cp .env.example .env.local   # puis renseigner NEXT_PUBLIC_SITE_URL et GEMINI_API_KEY
 npm run dev
 ```
 
@@ -79,8 +105,3 @@ npm run dev
 | Couleurs des thèmes           | `src/app/globals.css`        |
 
 Pour ajouter une compétence, placer son logo SVG dans `public/icons/` puis l'ajouter dans `skills.ts` (un test vérifie que chaque logo référencé existe).
-
-## Crédits
-
-- Logos des technologies : [Devicon](https://devicon.dev) et [Simple Icons](https://simpleicons.org).
-- Mise en page inspirée du portfolio de [Brittany Chiang](https://brittanychiang.com).

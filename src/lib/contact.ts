@@ -6,3 +6,8 @@ export function toTelHref(phone: string): string {
 export function toMailtoHref(email: string): string {
   return `mailto:${email}`;
 }
+
+/** Builds a WhatsApp "click to chat" link (international number, digits only). */
+export function toWhatsAppHref(phone: string): string {
+  return `https://wa.me/${phone.replace(/\D/g, "")}`;
+}

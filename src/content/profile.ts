@@ -21,6 +21,7 @@ export const profile = {
   location: "Antananarivo, Madagascar",
   email: "andrytianarajoelison@gmail.com",
   phones: ["+261 34 39 244 86", "+261 38 80 020 86"],
+  whatsapp: "+261 34 39 244 86",
   socials: {
     github: "https://github.com/rajoelisonandry",
     linkedin: "https://www.linkedin.com/in/andry-rajoelison",

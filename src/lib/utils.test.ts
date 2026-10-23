@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cn } from "./cn";
-import { toMailtoHref, toTelHref } from "./contact";
+import { toMailtoHref, toTelHref, toWhatsAppHref } from "./contact";
 import { serializeJsonLd } from "./structured-data";
 
 describe("cn", () => {
@@ -12,6 +12,12 @@ describe("cn", () => {
 describe("contact links", () => {
   it("builds a dialable tel: URI from a formatted phone number", () => {
     expect(toTelHref("+261 34 39 244 86")).toBe("tel:+261343924486");
+  });
+
+  it("builds a WhatsApp click-to-chat link", () => {
+    expect(toWhatsAppHref("+261 34 39 244 86")).toBe(
+      "https://wa.me/261343924486",
+    );
   });
 
   it("builds a mailto: URI", () => {

@@ -1,11 +1,15 @@
+import { MailIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { Section } from "@/components/ui/Section";
-import { toMailtoHref, toTelHref } from "@/lib/contact";
+import { toMailtoHref, toTelHref, toWhatsAppHref } from "@/lib/contact";
 import type { Profile } from "@/types/content";
 
 const linkClass = "block transition-colors hover:text-accent";
+const buttonClass =
+  "inline-flex items-center gap-2 rounded-md border border-accent px-5 py-3 text-sm font-medium text-accent transition-colors hover:bg-accent-soft";
 
 export function ContactSection({ profile }: { profile: Profile }) {
   const mailto = toMailtoHref(profile.email);
+  const whatsapp = toWhatsAppHref(profile.whatsapp);
 
   return (
     <Section
@@ -18,12 +22,21 @@ export function ContactSection({ profile }: { profile: Profile }) {
         pas à me contacter.
       </p>
 
-      <a
-        href={mailto}
-        className="mt-6 inline-block rounded-md border border-accent px-5 py-3 text-sm font-medium text-accent transition-colors hover:bg-accent-soft"
-      >
-        Me contacter
-      </a>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <a href={mailto} className={buttonClass}>
+          <MailIcon className="size-4" />
+          Me contacter
+        </a>
+        <a
+          href={whatsapp}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={buttonClass}
+        >
+          <WhatsAppIcon className="size-4" />
+          WhatsApp
+        </a>
+      </div>
 
       <address className="mt-6 space-y-1 text-sm not-italic">
         <a href={mailto} className={linkClass}>
@@ -32,6 +45,9 @@ export function ContactSection({ profile }: { profile: Profile }) {
         {profile.phones.map((phone) => (
           <a key={phone} href={toTelHref(phone)} className={linkClass}>
             {phone}
+            {phone === profile.whatsapp && (
+              <span className="ml-2 text-xs text-muted">(WhatsApp)</span>
+            )}
           </a>
         ))}
       </address>

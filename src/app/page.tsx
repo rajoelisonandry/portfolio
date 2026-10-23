@@ -1,3 +1,4 @@
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { Header } from "@/components/layout/Header";
 import { Hero } from "@/components/layout/Hero";
 import { Spotlight } from "@/components/layout/Spotlight";
@@ -7,6 +8,7 @@ import { EducationSection } from "@/components/sections/EducationSection";
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import {
   about,
+  chatSuggestions,
   education,
   experiences,
   languages,
@@ -43,6 +45,8 @@ export default function HomePage() {
           </main>
         </div>
       </div>
+
+      <ChatWidget firstName={profile.firstName} suggestions={chatSuggestions} />
     </>
   );
 }

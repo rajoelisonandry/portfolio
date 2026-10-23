@@ -6,10 +6,11 @@ import {
   GitHubIcon,
   LinkedInIcon,
   MailIcon,
+  WhatsAppIcon,
 } from "@/components/ui/icons";
 import { Typewriter } from "@/components/ui/Typewriter";
 import { HERO_NAME_ID } from "@/config/site";
-import { toMailtoHref } from "@/lib/contact";
+import { toMailtoHref, toWhatsAppHref } from "@/lib/contact";
 import type { Profile } from "@/types/content";
 
 /** Left column: identity, pitch, key figures and social links (sticky on desktop). */
@@ -17,6 +18,11 @@ export function Hero({ profile }: { profile: Profile }) {
   const socials = [
     { href: profile.socials.github, label: "GitHub", Icon: GitHubIcon },
     { href: profile.socials.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
+    {
+      href: toWhatsAppHref(profile.whatsapp),
+      label: "WhatsApp",
+      Icon: WhatsAppIcon,
+    },
     { href: toMailtoHref(profile.email), label: "E-mail", Icon: MailIcon },
   ];
 
