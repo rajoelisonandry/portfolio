@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   LOCALE_COOKIE,
   locales,
@@ -21,6 +20,12 @@ interface LanguageSwitcherProps {
   label: string;
 }
 
+/**
+ * Uses plain links (full page load) on purpose: switching locale re-renders
+ * `<html lang>`, and a client-side navigation would also reset the `dark`
+ * class set before paint by the theme script. A real load re-runs that script,
+ * so the visitor's theme is kept without any flash.
+ */
 export function LanguageSwitcher({ current, label }: LanguageSwitcherProps) {
   return (
     <ul
@@ -31,7 +36,7 @@ export function LanguageSwitcher({ current, label }: LanguageSwitcherProps) {
         const active = locale === current;
         return (
           <li key={locale}>
-            <Link
+            <a
               href={`/${locale}`}
               hrefLang={locale}
               lang={locale}
@@ -44,7 +49,7 @@ export function LanguageSwitcher({ current, label }: LanguageSwitcherProps) {
               )}
             >
               {locale}
-            </Link>
+            </a>
           </li>
         );
       })}
