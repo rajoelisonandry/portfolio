@@ -3,18 +3,22 @@ import { SkillBadge } from "@/components/ui/SkillBadge";
 import type { Language, SkillGroup } from "@/types/content";
 
 interface AboutSectionProps {
+  title: string;
+  languagesHeading: string;
   paragraphs: readonly string[];
   skillGroups: readonly SkillGroup[];
   languages: readonly Language[];
 }
 
 export function AboutSection({
+  title,
+  languagesHeading,
   paragraphs,
   skillGroups,
   languages,
 }: AboutSectionProps) {
   return (
-    <Section id="about" title="À propos">
+    <Section id="about" title={title}>
       <div className="space-y-4">
         {paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
@@ -34,7 +38,9 @@ export function AboutSection({
         ))}
 
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-heading">Langues</h3>
+          <h3 className="mb-3 text-sm font-semibold text-heading">
+            {languagesHeading}
+          </h3>
           <ul className="space-y-1 text-sm">
             {languages.map(({ name, level }) => (
               <li key={name}>

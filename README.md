@@ -11,7 +11,8 @@ Portfolio personnel de développeur FullStack indépendant, construit avec **Nex
 - **Accessibilité** : lien d'évitement, titres hiérarchisés, `aria-current`, focus visible, menu mobile fermable au clavier.
 - **SEO** : métadonnées Open Graph / Twitter, image de partage générée, `sitemap.xml`, `robots.txt` et données structurées JSON-LD (`Person`).
 - **Assistante IA** : un chat (Google Gemini, offre gratuite, réponses en streaming) qui répond uniquement aux questions sur le profil, protégé contre les abus (voir ci-dessous).
-- **Page statique** : la page est pré-rendue au build ; seule l'API de l'assistante s'exécute côté serveur.
+- **Bilingue français / anglais** : une URL par langue (`/fr`, `/en`), redirection automatique depuis `/` selon le choix mémorisé ou la langue du navigateur, sélecteur dans l'en-tête, balises `hreflang` et sitemap multilingue.
+- **Pages statiques** : les deux langues sont pré-rendues au build ; seule l'API de l'assistante s'exécute côté serveur.
 
 ## Stack
 
@@ -28,14 +29,17 @@ Portfolio personnel de développeur FullStack indépendant, construit avec **Nex
 
 ```
 src/
-├── app/                 # Routes Next.js : page, layout, SEO, API de l'assistante (api/chat)
+├── app/
+│   ├── [lang]/          # Page, layout et image de partage, par langue
+│   └── api/chat/        # API de l'assistante
 ├── components/
 │   ├── chat/            # Widget de l'assistante IA
-│   ├── layout/          # Header, Hero, ThemeToggle, Spotlight
+│   ├── layout/          # Header, Hero, LanguageSwitcher, ThemeToggle, Spotlight
 │   ├── sections/        # Sections de la page (À propos, Expérience, Formation, Contact)
 │   └── ui/              # Composants réutilisables et sans logique métier
 ├── config/              # Configuration du site et navigation (source unique des ancres)
-├── content/             # Contenu éditorial, typé, séparé de la présentation
+├── content/             # Contenu éditorial : faits communs (shared.ts) + textes par langue (locales/)
+├── i18n/                # Langues, dictionnaires de l'interface, choix de la langue
 ├── hooks/               # Hooks React (scroll-spy, machine à écrire, reduced motion)
 ├── lib/                 # Logique pure et testable (thème, machine à états, JSON-LD…)
 └── types/               # Types du domaine
@@ -96,12 +100,14 @@ npm run dev
 
 ## Modifier le contenu
 
-| Contenu                       | Fichier                      |
-| ----------------------------- | ---------------------------- |
-| Nom, accroche, rôles, contact | `src/content/profile.ts`     |
-| Compétences et langues        | `src/content/skills.ts`      |
-| Expériences                   | `src/content/experiences.ts` |
-| Formation                     | `src/content/education.ts`   |
-| Couleurs des thèmes           | `src/app/globals.css`        |
+| Contenu                                               | Fichier                     |
+| ----------------------------------------------------- | --------------------------- |
+| Nom, contacts, réseaux, technologies, années          | `src/content/shared.ts`     |
+| Textes en français (accroche, à propos, expériences…) | `src/content/locales/fr.ts` |
+| Textes en anglais                                     | `src/content/locales/en.ts` |
+| Textes de l'interface (menu, boutons, assistante…)    | `src/i18n/dictionaries/`    |
+| Couleurs des thèmes                                   | `src/app/globals.css`       |
 
-Pour ajouter une compétence, placer son logo SVG dans `public/icons/` puis l'ajouter dans `skills.ts` (un test vérifie que chaque logo référencé existe).
+Pour ajouter une compétence, placer son logo SVG dans `public/icons/` puis l'ajouter dans `skillCatalog` (`shared.ts`) (un test vérifie que chaque logo référencé existe).
+
+Pour ajouter une expérience, déclarer son identifiant et ses technologies dans `experienceCatalog` (`shared.ts`), puis ses textes dans `fr.ts` et `en.ts` : TypeScript signale toute traduction manquante.

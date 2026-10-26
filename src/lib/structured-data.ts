@@ -6,6 +6,7 @@ import type { Profile, SkillGroup } from "@/types/content";
 export function buildPersonJsonLd(
   profile: Profile,
   skillGroups: readonly SkillGroup[],
+  url: string,
 ) {
   return {
     "@context": "https://schema.org",
@@ -13,7 +14,7 @@ export function buildPersonJsonLd(
     name: profile.name,
     jobTitle: profile.title,
     email: toMailtoHref(profile.email),
-    url: siteConfig.url,
+    url,
     image: new URL(profile.photo.src, siteConfig.url).toString(),
     address: {
       "@type": "PostalAddress",

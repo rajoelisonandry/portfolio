@@ -8,6 +8,9 @@ import {
   SparklesIcon,
 } from "@/components/ui/icons";
 import { useChat } from "@/hooks/useChat";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries";
+import { format } from "@/i18n/format";
 import { cn } from "@/lib/cn";
 import { CHAT_LIMITS } from "@/lib/chat/limits";
 
@@ -16,13 +19,21 @@ const PANEL_ID = "chat-panel";
 interface ChatWidgetProps {
   firstName: string;
   suggestions: readonly string[];
+  locale: Locale;
+  labels: Dictionary["chat"];
 }
 
 /** Floating AI assistant that answers questions about the portfolio owner. */
-export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
+export function ChatWidget({
+  firstName,
+  suggestions,
+  locale,
+  labels,
+}: ChatWidgetProps) {
+  const name = { name: firstName };
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const { messages, pending, error, send, reset } = useChat();
+  const { messages, pending, error, send, reset } = useChat(locale, labels);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -60,9 +71,7 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls={PANEL_ID}
-        aria-label={
-          open ? "Fermer l'assistante" : `Poser une question sur ${firstName}`
-        }
+        aria-label={open ? labels.close : format(labels.open, name)}
         className="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-accent text-bg shadow-lg shadow-black/20 transition-transform hover:scale-105 sm:right-6 sm:bottom-6"
       >
         {open ? (
@@ -75,7 +84,7 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
       <section
         id={PANEL_ID}
         role="dialog"
-        aria-label={`Assistante IA de ${firstName}`}
+        aria-label={format(labels.dialog, name)}
         hidden={!open}
         className="fixed inset-x-4 bottom-22 z-50 flex max-h-[min(36rem,calc(100dvh-8rem))] flex-col overflow-hidden rounded-2xl border border-line bg-bg shadow-2xl shadow-black/30 sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-96"
       >
@@ -85,10 +94,10 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
           </span>
           <div className="min-w-0 flex-1">
             <h2 className="text-sm font-semibold text-heading">
-              Assistante IA
+              {labels.title}
             </h2>
             <p className="text-xs text-muted">
-              Questions sur le profil de {firstName}
+              {format(labels.subtitle, name)}
             </p>
           </div>
           {messages.length > 0 && (
@@ -97,7 +106,7 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
               onClick={reset}
               className="text-xs text-muted transition-colors hover:text-accent"
             >
-              Effacer
+              {labels.clear}
             </button>
           )}
         </header>
@@ -109,10 +118,7 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
         >
           {messages.length === 0 && (
             <div>
-              <p className="mb-3">
-                Bonjour ! Posez-moi une question sur le parcours, les
-                compétences ou les projets de {firstName}.
-              </p>
+              <p className="mb-3">{format(labels.greeting, name)}</p>
               <ul className="flex flex-col gap-2">
                 {suggestions.map((suggestion) => (
                   <li key={suggestion}>
@@ -141,7 +147,10 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
             >
               {message.content ||
                 (pending && (
-                  <span className="inline-flex gap-1" aria-label="Rédaction…">
+                  <span
+                    className="inline-flex gap-1"
+                    aria-label={labels.typing}
+                  >
                     <span className="size-1.5 animate-bounce rounded-full bg-muted" />
                     <span className="size-1.5 animate-bounce rounded-full bg-muted [animation-delay:150ms]" />
                     <span className="size-1.5 animate-bounce rounded-full bg-muted [animation-delay:300ms]" />
@@ -162,7 +171,7 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
           className="flex items-end gap-2 border-t border-line p-3"
         >
           <label htmlFor="chat-input" className="sr-only">
-            Votre question
+            {labels.inputLabel}
           </label>
           <textarea
             id="chat-input"
@@ -177,21 +186,19 @@ export function ChatWidget({ firstName, suggestions }: ChatWidgetProps) {
             }}
             rows={1}
             maxLength={CHAT_LIMITS.maxUserMessageChars}
-            placeholder="Votre question…"
+            placeholder={labels.placeholder}
             className="max-h-28 flex-1 resize-none rounded-lg border border-line bg-transparent px-3 py-2 text-sm text-heading placeholder:text-muted focus:border-accent focus:outline-none"
           />
           <button
             type="submit"
             disabled={pending || !input.trim()}
-            aria-label="Envoyer"
+            aria-label={labels.send}
             className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-bg transition-opacity disabled:opacity-40"
           >
             <SendIcon className="size-4" />
           </button>
         </form>
-        <p className="px-4 pb-3 text-[11px] text-muted">
-          Réponses générées par IA, à partir du portfolio uniquement.
-        </p>
+        <p className="px-4 pb-3 text-[11px] text-muted">{labels.disclaimer}</p>
       </section>
     </>
   );

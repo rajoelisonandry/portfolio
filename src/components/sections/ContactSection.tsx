@@ -1,31 +1,35 @@
 import { MailIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { Section } from "@/components/ui/Section";
 import { toMailtoHref, toTelHref, toWhatsAppHref } from "@/lib/contact";
+import type { Dictionary } from "@/i18n/dictionaries";
 import type { Profile } from "@/types/content";
 
 const linkClass = "block transition-colors hover:text-accent";
 const buttonClass =
   "inline-flex items-center gap-2 rounded-md border border-accent px-5 py-3 text-sm font-medium text-accent transition-colors hover:bg-accent-soft";
 
-export function ContactSection({ profile }: { profile: Profile }) {
+interface ContactSectionProps {
+  title: string;
+  labels: Dictionary["contact"];
+  profile: Profile;
+}
+
+export function ContactSection({
+  title,
+  labels,
+  profile,
+}: ContactSectionProps) {
   const mailto = toMailtoHref(profile.email);
   const whatsapp = toWhatsAppHref(profile.whatsapp);
 
   return (
-    <Section
-      id="contact"
-      title="Contact"
-      className="mb-0 pb-16 lg:min-h-[50vh]"
-    >
-      <p className="max-w-md">
-        Envie d&apos;échanger sur un projet ou une opportunité ? N&apos;hésitez
-        pas à me contacter.
-      </p>
+    <Section id="contact" title={title} className="mb-0 pb-16 lg:min-h-[50vh]">
+      <p className="max-w-md">{labels.intro}</p>
 
       <div className="mt-6 flex flex-wrap gap-3">
         <a href={mailto} className={buttonClass}>
           <MailIcon className="size-4" />
-          Me contacter
+          {labels.email}
         </a>
         <a
           href={whatsapp}
@@ -34,7 +38,7 @@ export function ContactSection({ profile }: { profile: Profile }) {
           className={buttonClass}
         >
           <WhatsAppIcon className="size-4" />
-          WhatsApp
+          {labels.whatsapp}
         </a>
       </div>
 

@@ -2,13 +2,14 @@ import { Section } from "@/components/ui/Section";
 import { TimelineItem } from "@/components/ui/TimelineItem";
 import type { Education } from "@/types/content";
 
-export function EducationSection({
-  education,
-}: {
+interface EducationSectionProps {
+  title: string;
   education: readonly Education[];
-}) {
+}
+
+export function EducationSection({ title, education }: EducationSectionProps) {
   return (
-    <Section id="education" title="Formation">
+    <Section id="education" title={title}>
       <ol className="group/list">
         {education.map((item) => (
           <TimelineItem

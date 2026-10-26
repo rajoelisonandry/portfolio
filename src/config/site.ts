@@ -4,21 +4,20 @@
 
 export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  locale: "fr_FR",
-  lang: "fr",
 } as const;
 
-/** Single source of truth for page sections: drives both the menu and the anchors. */
-export const navigation = [
-  { id: "about", label: "À propos" },
-  { id: "experience", label: "Expérience" },
-  { id: "education", label: "Formation" },
-  { id: "contact", label: "Contact" },
+/**
+ * Single source of truth for page sections: drives both the menu and the
+ * anchors. Labels are translated in the dictionaries (`nav.<id>`).
+ */
+export const sectionIds = [
+  "about",
+  "experience",
+  "education",
+  "contact",
 ] as const;
 
-export type SectionId = (typeof navigation)[number]["id"];
-
-export const sectionIds: readonly SectionId[] = navigation.map(({ id }) => id);
+export type SectionId = (typeof sectionIds)[number];
 
 /** Anchor of the hero title, observed to reveal the compact identity in the header. */
 export const HERO_NAME_ID = "hero-name";

@@ -3,13 +3,19 @@ import { TagList } from "@/components/ui/TagList";
 import { TimelineItem } from "@/components/ui/TimelineItem";
 import type { Experience } from "@/types/content";
 
-export function ExperienceSection({
-  experiences,
-}: {
+interface ExperienceSectionProps {
+  title: string;
+  stackLabel: string;
   experiences: readonly Experience[];
-}) {
+}
+
+export function ExperienceSection({
+  title,
+  stackLabel,
+  experiences,
+}: ExperienceSectionProps) {
   return (
-    <Section id="experience" title="Expérience">
+    <Section id="experience" title={title}>
       <ol className="group/list">
         {experiences.map((experience) => (
           <TimelineItem
@@ -29,7 +35,7 @@ export function ExperienceSection({
                 ))}
               </ul>
             )}
-            <TagList tags={experience.stack} label="Technologies utilisées" />
+            <TagList tags={experience.stack} label={stackLabel} />
           </TimelineItem>
         ))}
       </ol>

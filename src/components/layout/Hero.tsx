@@ -11,10 +11,17 @@ import {
 import { Typewriter } from "@/components/ui/Typewriter";
 import { HERO_NAME_ID } from "@/config/site";
 import { toMailtoHref, toWhatsAppHref } from "@/lib/contact";
+import type { Dictionary } from "@/i18n/dictionaries";
+import { format } from "@/i18n/format";
 import type { Profile } from "@/types/content";
 
 /** Left column: identity, pitch, key figures and social links (sticky on desktop). */
-export function Hero({ profile }: { profile: Profile }) {
+interface HeroProps {
+  profile: Profile;
+  labels: Dictionary["hero"];
+}
+
+export function Hero({ profile, labels }: HeroProps) {
   const socials = [
     { href: profile.socials.github, label: "GitHub", Icon: GitHubIcon },
     { href: profile.socials.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
@@ -33,7 +40,7 @@ export function Hero({ profile }: { profile: Profile }) {
       <div>
         <Image
           src={profile.photo}
-          alt={`Portrait de ${profile.name}`}
+          alt={format(labels.photoAlt, { name: profile.name })}
           sizes="(min-width: 640px) 160px, 128px"
           placeholder="blur"
           // Above the fold: fetch it early to improve LCP.
@@ -58,7 +65,7 @@ export function Hero({ profile }: { profile: Profile }) {
             href="#contact"
             className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
           >
-            Discutons de votre projet
+            {labels.contactCta}
             <ArrowRightIcon className="size-4" />
           </a>
           <a
@@ -68,14 +75,14 @@ export function Hero({ profile }: { profile: Profile }) {
             className="inline-flex items-center gap-2 rounded-md border border-accent px-5 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent-soft"
           >
             <DownloadIcon className="size-4" />
-            Télécharger mon CV
+            {labels.downloadCv}
           </a>
         </div>
       </div>
 
       <ul
         className="mt-8 ml-1 flex items-center gap-5 lg:short:mt-6"
-        aria-label="Réseaux sociaux"
+        aria-label={labels.socials}
       >
         {socials.map(({ href, label, Icon }) => (
           <li key={label}>

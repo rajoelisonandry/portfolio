@@ -8,19 +8,24 @@ import { cn } from "@/lib/cn";
 interface HeaderIdentityProps {
   name: string;
   photo: StaticImageData;
+  backToTopLabel: string;
 }
 
 /**
  * Compact avatar + name that slides into the header once the hero title has
  * scrolled out of view. Hidden on large screens, where the hero column is sticky.
  */
-export function HeaderIdentity({ name, photo }: HeaderIdentityProps) {
+export function HeaderIdentity({
+  name,
+  photo,
+  backToTopLabel,
+}: HeaderIdentityProps) {
   const visible = useScrolledPast(HERO_NAME_ID, HEADER_HEIGHT_PX);
 
   return (
     <a
       href="#"
-      title="Retour en haut"
+      title={backToTopLabel}
       aria-hidden={!visible}
       tabIndex={visible ? undefined : -1}
       className={cn(

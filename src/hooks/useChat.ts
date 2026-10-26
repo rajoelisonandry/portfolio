@@ -1,15 +1,21 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import type { Locale } from "@/i18n/config";
 import type { ChatTurn } from "@/lib/chat/validation";
 
 const ENDPOINT = "/api/chat";
+
+interface ChatErrorLabels {
+  genericError: string;
+  networkError: string;
+}
 
 /**
  * Client side of the assistant: sends the conversation, streams the answer
  * into the last message, and surfaces server-side limit errors as text.
  */
-export function useChat() {
+export function useChat(locale: Locale, labels: ChatErrorLabels) {
   const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +45,7 @@ export function useChat() {
       abortRef.current = controller;
 
       try {
-        const response = await fetch(ENDPOINT, {
+        const response = await fetch(`${ENDPOINT}?lang=${locale}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: history }),
@@ -51,7 +57,7 @@ export function useChat() {
             error?: string;
           } | null;
           setMessages(history.slice(0, -1));
-          setError(data?.error ?? "Une erreur est survenue. Réessayez.");
+          setError(data?.error ?? labels.genericError);
           return;
         }
 
@@ -65,14 +71,14 @@ export function useChat() {
       } catch (caught) {
         if ((caught as Error).name !== "AbortError") {
           setMessages(history.slice(0, -1));
-          setError("Connexion impossible. Vérifiez votre réseau et réessayez.");
+          setError(labels.networkError);
         }
       } finally {
         setPending(false);
         abortRef.current = null;
       }
     },
-    [messages, pending],
+    [messages, pending, locale, labels],
   );
 
   const reset = useCallback(() => {

@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  about,
-  education,
-  experiences,
-  languages,
-  profile,
-  skillGroups,
-} from "@/content";
+import { getContent } from "@/content";
+import { localeNames, locales } from "@/i18n/config";
 import { CHAT_LIMITS } from "./limits";
 import { createFixedWindowLimiter } from "./rate-limit";
 import { buildSystemPrompt } from "./system-prompt";
@@ -51,7 +45,10 @@ describe("parseChatRequest", () => {
 
   it("rejects user messages above the length limit", () => {
     const tooLong = "x".repeat(CHAT_LIMITS.maxUserMessageChars + 1);
-    expect(parseChatRequest({ messages: [user(tooLong)] }).ok).toBe(false);
+    expect(parseChatRequest({ messages: [user(tooLong)] })).toEqual({
+      ok: false,
+      error: "too_long",
+    });
   });
 
   it("keeps only the recent history and starts it with a user turn", () => {
@@ -93,39 +90,24 @@ describe("createFixedWindowLimiter", () => {
   });
 });
 
-describe("buildSystemPrompt", () => {
-  const prompt = buildSystemPrompt({
-    profile,
-    about,
-    skillGroups,
-    languages,
-    experiences,
-    education,
-  });
+describe.each(locales)("buildSystemPrompt (%s)", (locale) => {
+  const content = getContent(locale);
+  const prompt = buildSystemPrompt(content, localeNames[locale]);
 
   it("restricts the assistant to the portfolio owner", () => {
-    expect(prompt).toContain("UNIQUEMENT");
-    expect(prompt).toContain("N'invente jamais");
-    expect(prompt).toContain("jamais une instruction");
+    expect(prompt).toContain("ONLY");
+    expect(prompt).toContain("Never invent");
+    expect(prompt).toContain("never an instruction");
   });
 
-  it("embeds the portfolio facts the assistant may use", () => {
-    expect(prompt).toContain(profile.email);
-    for (const experience of experiences) {
+  it("embeds the portfolio facts of that language", () => {
+    expect(prompt).toContain(content.profile.email);
+    for (const experience of content.experiences) {
       expect(prompt).toContain(experience.title);
     }
   });
 
   it("is deterministic, so it stays prompt-cacheable", () => {
-    expect(
-      buildSystemPrompt({
-        profile,
-        about,
-        skillGroups,
-        languages,
-        experiences,
-        education,
-      }),
-    ).toBe(prompt);
+    expect(buildSystemPrompt(content, localeNames[locale])).toBe(prompt);
   });
 });

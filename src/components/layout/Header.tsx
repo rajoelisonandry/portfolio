@@ -3,15 +3,21 @@
 import type { StaticImageData } from "next/image";
 import { useEffect, useState } from "react";
 import { HeaderIdentity } from "@/components/layout/HeaderIdentity";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
-import { navigation, sectionIds, type SectionId } from "@/config/site";
+import { sectionIds, type SectionId } from "@/config/site";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/cn";
 
 const MOBILE_MENU_ID = "mobile-menu";
 
+type NavLabels = Dictionary["nav"];
+
 interface NavLinksProps {
+  labels: NavLabels;
   active: SectionId;
   onNavigate?: () => void;
   className?: string;
@@ -19,6 +25,7 @@ interface NavLinksProps {
 }
 
 function NavLinks({
+  labels,
   active,
   onNavigate,
   className,
@@ -26,7 +33,7 @@ function NavLinks({
 }: NavLinksProps) {
   return (
     <ul className={className}>
-      {navigation.map(({ id, label }) => {
+      {sectionIds.map((id) => {
         const isActive = id === active;
         return (
           <li key={id}>
@@ -40,7 +47,7 @@ function NavLinks({
                 linkClassName,
               )}
             >
-              {label}
+              {labels[id]}
             </a>
           </li>
         );
@@ -52,9 +59,11 @@ function NavLinks({
 interface HeaderProps {
   name: string;
   photo: StaticImageData;
+  locale: Locale;
+  labels: Pick<Dictionary, "nav" | "theme">;
 }
 
-export function Header({ name, photo }: HeaderProps) {
+export function Header({ name, photo, locale, labels }: HeaderProps) {
   const active = useActiveSection(sectionIds);
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
@@ -72,40 +81,48 @@ export function Header({ name, photo }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-line/60 bg-bg/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-2 px-6 md:px-12 lg:px-24">
-        <HeaderIdentity name={name} photo={photo} />
+        <HeaderIdentity
+          name={name}
+          photo={photo}
+          backToTopLabel={labels.nav.backToTop}
+        />
 
-        <nav
-          aria-label="Navigation principale"
-          className="ml-auto hidden md:block"
-        >
-          <NavLinks active={active} className="mr-4 flex items-center gap-8" />
+        <nav aria-label={labels.nav.main} className="ml-auto hidden md:block">
+          <NavLinks
+            labels={labels.nav}
+            active={active}
+            className="mr-4 flex items-center gap-8"
+          />
         </nav>
 
-        <ThemeToggle className="ml-auto md:ml-0" />
-
-        <button
-          type="button"
-          onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-          aria-expanded={menuOpen}
-          aria-controls={MOBILE_MENU_ID}
-          className="rounded-full p-2 transition-colors hover:bg-accent-soft hover:text-accent md:hidden"
-        >
-          {menuOpen ? (
-            <CloseIcon className="size-5" />
-          ) : (
-            <MenuIcon className="size-5" />
-          )}
-        </button>
+        <div className="ml-auto flex items-center gap-1 md:ml-0">
+          <LanguageSwitcher current={locale} label={labels.nav.language} />
+          <ThemeToggle label={labels.theme.toggle} title={labels.theme.title} />
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? labels.nav.closeMenu : labels.nav.openMenu}
+            aria-expanded={menuOpen}
+            aria-controls={MOBILE_MENU_ID}
+            className="rounded-full p-2 transition-colors hover:bg-accent-soft hover:text-accent md:hidden"
+          >
+            {menuOpen ? (
+              <CloseIcon className="size-5" />
+            ) : (
+              <MenuIcon className="size-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
         <nav
           id={MOBILE_MENU_ID}
-          aria-label="Navigation mobile"
+          aria-label={labels.nav.mobile}
           className="border-t border-line/60 md:hidden"
         >
           <NavLinks
+            labels={labels.nav}
             active={active}
             onNavigate={closeMenu}
             className="flex flex-col px-6 py-2"
